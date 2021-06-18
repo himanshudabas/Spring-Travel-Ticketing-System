@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -104,6 +105,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public TicketResolveInfoDto getTicketResolveInfo(Long ticketId) throws UnauthorizedTicketAccessException, TicketResolveInfoNotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("admin:read"));
@@ -137,11 +139,8 @@ public class TicketServiceImpl implements TicketService {
         }
         if (!request.getComment().equals(resolveInfo.getComment())) {
             // if comment has changed save it
-
             Employee admin = employeeRepository.findEmployeeByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             resolveInfo.setAdmin(admin);
-            changed = false;
-
             resolveInfo.setComment(request.getComment());
             return toTicketResolveInfoDto(ticketResolveInfoRepository.save(resolveInfo));
         }
@@ -180,7 +179,6 @@ public class TicketServiceImpl implements TicketService {
         Document newDoc = new Document();
         newDoc.setType(type);
         newDoc.setData(data);
-        ;
         newDoc.setName(filename);
         newDoc.setSize(size);
         newDoc.setResolveInfo(resolveInfo);
