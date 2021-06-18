@@ -139,11 +139,8 @@ public class TicketServiceImpl implements TicketService {
         }
         if (!request.getComment().equals(resolveInfo.getComment())) {
             // if comment has changed save it
-
             Employee admin = employeeRepository.findEmployeeByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             resolveInfo.setAdmin(admin);
-            changed = false;
-
             resolveInfo.setComment(request.getComment());
             return toTicketResolveInfoDto(ticketResolveInfoRepository.save(resolveInfo));
         }
@@ -182,7 +179,6 @@ public class TicketServiceImpl implements TicketService {
         Document newDoc = new Document();
         newDoc.setType(type);
         newDoc.setData(data);
-        ;
         newDoc.setName(filename);
         newDoc.setSize(size);
         newDoc.setResolveInfo(resolveInfo);
