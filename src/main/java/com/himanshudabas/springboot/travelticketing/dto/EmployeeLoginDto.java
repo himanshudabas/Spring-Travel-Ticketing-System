@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserLoginDto {
+public class EmployeeLoginDto {
 
     @Email(message = DataValidationConstant.INVALID_EMAIL)
     @NotBlank(message = DataValidationConstant.USERNAME_REQUIRED)

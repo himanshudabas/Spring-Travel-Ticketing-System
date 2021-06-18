@@ -3,11 +3,11 @@ package com.himanshudabas.springboot.travelticketing.controller;
 import com.himanshudabas.springboot.travelticketing.exception.domain.*;
 import com.himanshudabas.springboot.travelticketing.domain.HttpResponse;
 import com.himanshudabas.springboot.travelticketing.domain.UserPrincipal;
-import com.himanshudabas.springboot.travelticketing.dto.UserDto;
-import com.himanshudabas.springboot.travelticketing.dto.UserLoginDto;
+import com.himanshudabas.springboot.travelticketing.dto.EmployeeDto;
+import com.himanshudabas.springboot.travelticketing.dto.EmployeeLoginDto;
 import com.himanshudabas.springboot.travelticketing.exception.email.SendEmailFailException;
-import com.himanshudabas.springboot.travelticketing.model.User;
-import com.himanshudabas.springboot.travelticketing.service.UserService;
+import com.himanshudabas.springboot.travelticketing.model.Employee;
+import com.himanshudabas.springboot.travelticketing.service.EmployeeService;
 import com.himanshudabas.springboot.travelticketing.utility.JWTTokenProvider;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -29,70 +29,70 @@ import static com.himanshudabas.springboot.travelticketing.constant.SecurityCons
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping(path = {"/user"})
-public class UserResource extends ExceptionHandling {
+@RequestMapping(path = {"/employee"})
+public class EmployeeController extends ExceptionHandling {
 
     private final ModelMapper modelMapper;
-    private final UserService userService;
+    private final EmployeeService employeeService;
     private final JWTTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public UserResource(AuthenticationManager authenticationManager, UserService userService, ModelMapper modelMapper, JWTTokenProvider jwtTokenProvider) {
+    public EmployeeController(AuthenticationManager authenticationManager, EmployeeService employeeService, ModelMapper modelMapper, JWTTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
-        this.userService = userService;
+        this.employeeService = employeeService;
         this.modelMapper = modelMapper;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/allUsers")
-    public ResponseEntity<Map<Long, UserDto>> getAllUsers() {
-        Map<Long, UserDto> mpNew = userService.getUsers().stream()
-                .collect(Collectors.toMap(User::getId, this::toDto));
+    @PreAuthorize("hasAuthority('admin:read')")
+    @GetMapping("/allEmployees")
+    public ResponseEntity<Map<Long, EmployeeDto>> getAllUsers() {
+        Map<Long, EmployeeDto> mpNew = employeeService.getEmployees().stream()
+                .collect(Collectors.toMap(Employee::getId, this::toDto));
         return ResponseEntity.ok(mpNew);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity<EmployeeDto> login(@Valid @RequestBody EmployeeLoginDto employeeLoginDto) {
         LOGGER.info("[login]");
-        authenticate(userLoginDto.getUsername(), userLoginDto.getPassword());
-        User user = userService.findUserByUsername(userLoginDto.getUsername());
-        UserPrincipal userPrincipal = new UserPrincipal(user);
+        authenticate(employeeLoginDto.getUsername(), employeeLoginDto.getPassword());
+        Employee employee = employeeService.findEmployeeByUsername(employeeLoginDto.getUsername());
+        UserPrincipal userPrincipal = new UserPrincipal(employee);
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
-        return new ResponseEntity<>(toDto(user), jwtHeader, OK);
+        return new ResponseEntity<>(toDto(employee), jwtHeader, OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(@Valid @RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, SendEmailFailException, UsernameEmailMismatchException {
+    public ResponseEntity<EmployeeDto> register(@Valid @RequestBody EmployeeDto employeeDto) throws EmployeeNotFoundException, UsernameExistException, EmailExistException, SendEmailFailException, UsernameEmailMismatchException {
         LOGGER.info("[register]");
-        User newUser = userService.register(toEntity(userDto));
-        UserPrincipal userPrincipal = new UserPrincipal(newUser);
+        Employee newEmployee = employeeService.register(toEntity(employeeDto));
+        UserPrincipal userPrincipal = new UserPrincipal(newEmployee);
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
-        return new ResponseEntity<>(toDto(newUser), jwtHeader, OK);
+        return new ResponseEntity<>(toDto(newEmployee), jwtHeader, OK);
     }
 
     @PreAuthorize("authentication.name == #username")
     @GetMapping("/{username}")
-    public ResponseEntity<UserDto> getUser(@PathVariable String username) {
+    public ResponseEntity<EmployeeDto> getEmployee(@PathVariable String username) {
         LOGGER.info("[getUser]");
-        User user = userService.findUserByUsername(username);
-        return new ResponseEntity<>(toDto(user), HttpStatus.OK);
+        Employee employee = employeeService.findEmployeeByUsername(username);
+        return new ResponseEntity<>(toDto(employee), HttpStatus.OK);
     }
 
 
     @PreAuthorize("authentication.name == #username")
     @PostMapping("/update/{username}")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable String username) throws UserNotFoundException {
+    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto, @PathVariable String username) throws EmployeeNotFoundException {
         LOGGER.info("[updateUser]");
-        User newUser = userService.updateUser(toEntity(userDto), username);
-        return new ResponseEntity<>(toDto(newUser), OK);
+        Employee newEmployee = employeeService.updateEmployee(toEntity(employeeDto), username);
+        return new ResponseEntity<>(toDto(newEmployee), OK);
     }
 
     @GetMapping("/resetPassword/{email}")
     public ResponseEntity<HttpResponse> resetPassword(@PathVariable String email) throws EmailNotFoundException, SendEmailFailException {
         LOGGER.info("[resetPassword]");
-        userService.resetPassword(email);
+        employeeService.resetPassword(email);
         return response(OK, EMAIL_SENT_TO + email);
     }
 
@@ -113,14 +113,14 @@ public class UserResource extends ExceptionHandling {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
-    private UserDto toDto(User user) {
-        String role = user.getRole();
-        UserDto newObj = modelMapper.map(user, UserDto.class);
+    private EmployeeDto toDto(Employee employee) {
+        String role = employee.getRole();
+        EmployeeDto newObj = modelMapper.map(employee, EmployeeDto.class);
         newObj.setIsAdmin(role.equalsIgnoreCase("ROLE_ADMIN"));
         return newObj;
     }
 
-    private User toEntity(UserDto userDto) {
-        return modelMapper.map(userDto, User.class);
+    private Employee toEntity(EmployeeDto employeeDto) {
+        return modelMapper.map(employeeDto, Employee.class);
     }
 }

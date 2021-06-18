@@ -20,12 +20,12 @@ import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
 @RestController
 @RequestMapping(path = {"/tickets"})
-public class TicketResource extends ExceptionHandling {
+public class TicketController extends ExceptionHandling {
 
     private final TicketService ticketService;
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    TicketResource(TicketService ticketService) {
+    TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
@@ -48,7 +48,7 @@ public class TicketResource extends ExceptionHandling {
         return ResponseEntity.ok(ticketService.getTicketResolveInfo(ticketId));
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('admin:update')")
     @PutMapping("/resolveInfo/{ticketId}")
     public ResponseEntity<TicketResolveInfoDto> changeResolveInfo(@ModelAttribute CustomResolveInfoDto request, BindingResult result, @PathVariable Long ticketId) throws Exception {
         if (result.hasErrors()) {

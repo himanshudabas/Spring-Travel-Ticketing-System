@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDto {
+public class EmployeeDto {
 
     @NotBlank(message = DataValidationConstant.USERNAME_REQUIRED)
     String username;

@@ -25,7 +25,7 @@ public class Ticket {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    private User userId;
+    private Employee employeeId;
     private TicketType type;
     private TicketPriorityType priority;
     private String travelTo;

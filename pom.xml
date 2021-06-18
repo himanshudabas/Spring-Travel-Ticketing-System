@@ -42,9 +42,15 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- DB Dependency -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

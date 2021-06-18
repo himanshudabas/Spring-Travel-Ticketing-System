@@ -36,7 +36,7 @@ public class ResolveInfo {
     private String comment = "";
     @OneToOne
     @JoinColumn(name = "ADMIN_ID")
-    private User admin = null;
+    private Employee admin = null;
 
     public ResolveInfo(Ticket ticket) {
         this.ticket = ticket;

@@ -1,6 +1,6 @@
 package com.himanshudabas.springboot.travelticketing.domain;
 
-import com.himanshudabas.springboot.travelticketing.model.User;
+import com.himanshudabas.springboot.travelticketing.model.Employee;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,25 +12,25 @@ import static java.util.Arrays.stream;
 
 public class UserPrincipal implements UserDetails {
 
-    private final User user;
+    private final Employee employee;
 
-    public UserPrincipal(User user) {
-        this.user = user;
+    public UserPrincipal(Employee employee) {
+        this.employee = employee;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return stream(this.user.getAuthorities()).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return stream(this.employee.getAuthorities()).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     @Override
     public String getPassword() {
-        return this.user.getPassword();
+        return this.employee.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.user.getUsername();
+        return this.employee.getUsername();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.user.isNotLocked();
+        return this.employee.isNotLocked();
     }
 
     @Override
@@ -50,6 +50,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.user.isActive();
+        return this.employee.isActive();
     }
 }

@@ -10,15 +10,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Entity
+@Entity(name="EMPLOYEE")
 @Getter
 @Setter
 @NoArgsConstructor
-@SequenceGenerator(name = "USER_SEQUENCE", sequenceName = "user_sequence", allocationSize=1)
-public class User implements Serializable {
+@SequenceGenerator(name = "EMPLOYEE_SEQUENCE", sequenceName = "EMPLOYEE_sequence", allocationSize=1)
+public class Employee implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQUENCE")
-    @Column(name = "USER_ID", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "EMPLOYEE_SEQUENCE")
+    @Column(name = "EMPLOYEE_ID", nullable = false, updatable = false)
     private Long id;
     @Column(unique = true)
     private String username;
@@ -31,7 +31,12 @@ public class User implements Serializable {
     private String password;
     private String telephone;
     private String role;
-    private String[] authorities;
+
+    public String[] getAuthorities() {
+        return authorities.split(",");
+    }
+
+    private String authorities;
     private boolean isActive;
     private boolean isNotLocked;
 
@@ -40,7 +45,7 @@ public class User implements Serializable {
     @Valid
     private Address address;
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "employeeId")
     private Collection<Ticket> tickets = new ArrayList<>();
 
 }
