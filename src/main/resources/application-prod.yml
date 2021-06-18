@@ -21,14 +21,10 @@ spring:
 
 logging:
   level:
-    root: INFO
+    root: ERROR
 
 server:
   port: ${PROD_SERVER_PORT}
 
-client-url:
-  protocol: ${PROD_CLIENT_URL_PROTOCOL}
-  domain: ${PROD_CLIENT_URL_DOMAIN}
-  port: ${PROD_CLIENT_URL_PORT}
-
+client-url: ${PROD_CLIENT_URL}
 app-secret: ${PROD_APP_SECRET}

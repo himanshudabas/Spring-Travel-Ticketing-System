@@ -20,18 +20,14 @@ public class TravelTicketingApplication {
         SpringApplication.run(TravelTicketingApplication.class, args);
     }
 
-    @Value("${client-url.protocol}")
-    private String clientProtocol;
-    @Value("${client-url.domain}")
-    private String clientDomain;
+    @Value("${client-url}")
+    private String clientUrl;
 
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        String clientUrl = clientProtocol + "://" + clientDomain;
-        System.out.println(clientUrl);
         corsConfiguration.setAllowedOrigins(Collections.singletonList(clientUrl));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
                 "Accept", "Jwt-Token", "Authorization", "Origin, Accept", "X-Requested-With",

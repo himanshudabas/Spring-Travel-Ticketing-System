@@ -26,9 +26,5 @@ logging:
 server:
   port: ${LOCAL_SERVER_PORT}
 
-client-url:
-  protocol: http
-  domain: localhost
-  port: 4200
-
+client-url: http://localhost:4200
 app-secret: ${LOCAL_APP_SECRET}

@@ -1,23 +1,13 @@
 {
   "properties": [
     {
-      "name": "client-url.protocol",
-      "type": "java.lang.String",
-      "description": "Protocol to whitelist in cors filter which the client uses. e.g. http/https."
-    },
-    {
-      "name": "client-url.domain",
-      "type": "java.lang.String",
-      "description": "domain name to whitelist in cors filter which the client uses. e.g. xyz.com."
-    },
-    {
-      "name": "client-url.port",
-      "type": "java.lang.String",
-      "description": "Port number to whitelist in cors filter which the client uses. e.g. 80/443."
-    },
-    {
       "name": "app-secret",
       "type": "java.lang.String",
       "description": "Secret which is used for JWT Tokens."
+    },
+    {
+      "name": "client-url",
+      "type": "java.lang.String",
+      "description": "URL to whitelist in cors filter which the client is hosted on."
     }
   ] }
