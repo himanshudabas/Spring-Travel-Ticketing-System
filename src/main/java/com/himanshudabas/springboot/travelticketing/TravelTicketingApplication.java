@@ -24,15 +24,13 @@ public class TravelTicketingApplication {
     private String clientProtocol;
     @Value("${client-url.domain}")
     private String clientDomain;
-    @Value("${client-url.port}")
-    private String clientPort;
 
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        String clientUrl = clientProtocol + "://" + clientDomain + ":" + clientPort;
+        String clientUrl = clientProtocol + "://" + clientDomain;
         System.out.println(clientUrl);
         corsConfiguration.setAllowedOrigins(Collections.singletonList(clientUrl));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
