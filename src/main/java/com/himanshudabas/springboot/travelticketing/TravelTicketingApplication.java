@@ -33,6 +33,7 @@ public class TravelTicketingApplication {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
         String clientUrl = clientProtocol + "://" + clientDomain + ":" + clientPort;
+        System.out.println(clientUrl);
         corsConfiguration.setAllowedOrigins(Collections.singletonList(clientUrl));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
                 "Accept", "Jwt-Token", "Authorization", "Origin, Accept", "X-Requested-With",
