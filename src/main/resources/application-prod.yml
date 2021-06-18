@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: ${PROD_DB_URL}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${PROD_DB_DIALECT}
+
+  mail:
+    host: ${PROD_SMTP_HOST}
+    username: ${PROD_SMTP_USERNAME}
+    password: ${PROD_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          port: ${PROD_SMTP_PORT}
+
+logging:
+  level:
+    root: ERROR
+
+server:
+  port: ${PROD_SERVER_PORT}
+
+client-url:
+  protocol: ${PROD_CLIENT_URL_PROTOCOL}
+  domain: ${PROD_CLIENT_URL_DOMAIN}
+  port: ${PROD_CLIENT_URL_PORT}
+
+app-secret: ${PROD_APP_SECRET}
