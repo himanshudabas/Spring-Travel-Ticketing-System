@@ -213,10 +213,10 @@ public class TicketServiceImpl implements TicketService {
     }
 
     private TicketDto toTicketDto(Ticket ticket) {
-        Long userId = ticket.getEmployeeId().getId();
+        Long employeeId = ticket.getEmployeeId().getId();
         String userName = ticket.getEmployeeId().getFirstName() + " " + ticket.getEmployeeId().getLastName();
         TicketDto temp = modelMapper.map(ticket, TicketDto.class);
-        temp.setUserId(userId);
+        temp.setEmployeeId(employeeId);
         temp.setUserName(userName);
         return temp;
     }
@@ -231,9 +231,4 @@ public class TicketServiceImpl implements TicketService {
         temp.setAdminName(adminName);
         return temp;
     }
-
-    private DocumentDto toDocumentDto(Document document) {
-        return modelMapper.map(document, DocumentDto.class);
-    }
-
 }

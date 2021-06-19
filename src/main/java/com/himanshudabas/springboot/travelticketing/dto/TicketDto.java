@@ -18,7 +18,7 @@ import java.util.Date;
 public class TicketDto {
 
     private Long id;
-    private Long userId;
+    private Long employeeId;
     private TicketType type;
     private TicketPriorityType priority;
     private String travelTo;
