@@ -120,6 +120,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public TicketResolveInfoDto changeTicketResolveInfo(Long ticketId, CustomResolveInfoDto request) throws Exception {
         Optional<Ticket> ticket = ticketRepository.findById(ticketId);
         ResolveInfo resolveInfo = ticketResolveInfoRepository.getOne(ticketId);
@@ -135,6 +136,7 @@ public class TicketServiceImpl implements TicketService {
             // if document is uploaded then save it
             Document newDoc = getNewDocument(request.getDocuments(), resolveInfo);
             documentRepository.save(newDoc);
+            resolveInfo.getDocuments().add(newDoc);
             changed = true;
         }
         if (!request.getComment().equals(resolveInfo.getComment())) {
