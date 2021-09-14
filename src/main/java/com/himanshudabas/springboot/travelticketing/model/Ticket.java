@@ -24,7 +24,7 @@ public class Ticket {
     @Column(name = "TICKET_ID", nullable = false, updatable = false)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "EMPLOYEE_ID")
     private Employee employeeId;
     private TicketType type;
     private TicketPriorityType priority;

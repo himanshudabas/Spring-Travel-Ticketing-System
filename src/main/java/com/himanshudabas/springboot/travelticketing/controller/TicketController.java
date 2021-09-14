@@ -59,7 +59,8 @@ public class TicketController extends ExceptionHandling {
         if (request.getComment().equals("null")) {
             request.setComment("");
         }
-        return ResponseEntity.ok(ticketService.changeTicketResolveInfo(ticketId, request));
+        TicketResolveInfoDto ticketResolveInfoDto = ticketService.changeTicketResolveInfo(ticketId, request);
+        return ResponseEntity.ok(ticketResolveInfoDto);
     }
 
     @GetMapping("/documents/{documentId}")
