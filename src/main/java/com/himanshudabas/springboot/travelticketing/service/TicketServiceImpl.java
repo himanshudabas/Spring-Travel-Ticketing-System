@@ -7,17 +7,16 @@ import com.himanshudabas.springboot.travelticketing.dto.TicketResolveInfoDto;
 import com.himanshudabas.springboot.travelticketing.enumeration.TicketStatus;
 import com.himanshudabas.springboot.travelticketing.exception.domain.*;
 import com.himanshudabas.springboot.travelticketing.model.Document;
-import com.himanshudabas.springboot.travelticketing.model.ResolveInfo;
-import com.himanshudabas.springboot.travelticketing.repository.TicketResolveInfoRepository;
-import com.himanshudabas.springboot.travelticketing.model.Ticket;
 import com.himanshudabas.springboot.travelticketing.model.Employee;
+import com.himanshudabas.springboot.travelticketing.model.ResolveInfo;
+import com.himanshudabas.springboot.travelticketing.model.Ticket;
 import com.himanshudabas.springboot.travelticketing.repository.DocumentRepository;
-import com.himanshudabas.springboot.travelticketing.repository.TicketRepository;
 import com.himanshudabas.springboot.travelticketing.repository.EmployeeRepository;
+import com.himanshudabas.springboot.travelticketing.repository.TicketRepository;
+import com.himanshudabas.springboot.travelticketing.repository.TicketResolveInfoRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,9 +30,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TicketServiceImpl implements TicketService {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final TicketRepository ticketRepository;
     private final EmployeeRepository employeeRepository;
     private final ModelMapper modelMapper;
@@ -51,6 +50,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<TicketDto> getAllTickets() {
+        log.info("inside getAllTickets()");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("admin:read"));
         List<TicketDto> allTickets;
@@ -60,32 +60,39 @@ public class TicketServiceImpl implements TicketService {
         } else {
             allTickets = ticketRepository.findAll().stream().map(this::toTicketDto).collect(Collectors.toList());
         }
+        log.info("finished getAllTickets()");
         return allTickets;
     }
 
     @Override
     public TicketDto getTicket(Long ticketId) throws UnauthorizedTicketAccessException, TicketNotFoundException {
+        log.info("inside getTicket(), with ticketId: {}", ticketId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("admin:read"));
+        TicketDto ticketDto;
         if (!isAdmin) {
-            return toTicketDto(checkTicketAuth(authentication.getName(), ticketId));
+            ticketDto = toTicketDto(checkTicketAuth(authentication.getName(), ticketId));
         } else {
             Optional<Ticket> origTicket = ticketRepository.findById(ticketId);
             if (origTicket.isEmpty()) {
-                throw new TicketNotFoundException("");
+                throw new TicketNotFoundException(String.format("Ticket with id: %s could not be found.", ticketId));
             }
-            return toTicketDto(origTicket.get());
+            ticketDto = toTicketDto(origTicket.get());
         }
+        log.info("inside getTicket(), with ticketId: {}", ticketId);
+        return ticketDto;
     }
 
     @Override
     public TicketDto createTicket(Ticket ticket) {
+        log.info("inside createTicket()");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Employee employee = employeeRepository.findEmployeeByUsername(authentication.getName());
         ticket.setSubmitDate(new Date());
         ticket.setTicketStatus(TicketStatus.SUBMITTED);
         ticket.setEmployeeId(employee);
         this.createTicketResolveInfo(ticket);
+        log.info("finished createTicket()");
         return toTicketDto(ticketRepository.save(ticket));
     }
 
@@ -95,18 +102,21 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketDto updateTicket(Ticket newTicketDetails, Long ticketId) throws UnauthorizedTicketAccessException, TicketInProcessException {
+        log.info("inside updateTicket(), with ticketId: {}", ticketId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Ticket newTicket = checkTicketAuth(authentication.getName(), ticketId);
         if (newTicket.getTicketStatus().equals(TicketStatus.INPROCESS)) {
             throw new TicketInProcessException("");
         }
         copyTicketDetails(newTicket, newTicketDetails);
+        log.info("finished updateTicket()");
         return toTicketDto(ticketRepository.save(newTicket));
     }
 
     @Override
     @Transactional
     public TicketResolveInfoDto getTicketResolveInfo(Long ticketId) throws UnauthorizedTicketAccessException, TicketResolveInfoNotFoundException {
+        log.info("inside getTicketResolveInfo(), with ticketId: {}", ticketId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("admin:read"));
         if (!isAdmin) {
@@ -116,12 +126,14 @@ public class TicketServiceImpl implements TicketService {
         if (resolveInfo.isEmpty()) {
             throw new TicketResolveInfoNotFoundException("");
         }
+        log.info("finished getTicketResolveInfo()");
         return toTicketResolveInfoDto(resolveInfo.get());
     }
 
     @Override
     @Transactional
     public TicketResolveInfoDto changeTicketResolveInfo(Long ticketId, CustomResolveInfoDto request) throws Exception {
+        log.info("inside changeTicketResolveInfo(), with ticketId: {}", ticketId);
         Optional<Ticket> ticket = ticketRepository.findById(ticketId);
         ResolveInfo resolveInfo = ticketResolveInfoRepository.getOne(ticketId);
         boolean changed = false;
@@ -156,6 +168,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Document getDocument(Long documentId) throws DocumentNotFoundException, UnauthorizedDocumentAccessException {
+        log.info("inside getDocument(), with documentId: {}", documentId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("admin:read"));
         Document myDoc = documentRepository.findById(documentId).orElseThrow(() -> new DocumentNotFoundException(""));
@@ -169,6 +182,7 @@ public class TicketServiceImpl implements TicketService {
             // user doesn't have permission to access this document
             throw new UnauthorizedDocumentAccessException("");
         }
+        log.info("finished getDocument()");
         return myDoc;
     }
 
@@ -212,7 +226,7 @@ public class TicketServiceImpl implements TicketService {
         origTicket.setPassportNumber(updateTicket.getPassportNumber());
     }
 
-    private TicketDto toTicketDto(Ticket ticket) {
+    public TicketDto toTicketDto(Ticket ticket) {
         Long userId = ticket.getEmployeeId().getId();
         String userName = ticket.getEmployeeId().getFirstName() + " " + ticket.getEmployeeId().getLastName();
         TicketDto temp = modelMapper.map(ticket, TicketDto.class);

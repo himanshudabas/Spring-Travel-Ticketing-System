@@ -2,8 +2,7 @@ package com.himanshudabas.springboot.travelticketing.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.himanshudabas.springboot.travelticketing.domain.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.stereotype.Component;
@@ -17,15 +16,14 @@ import static com.himanshudabas.springboot.travelticketing.constant.SecurityCons
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 @Component
 public class JwtAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
 
-        LOGGER.info("[commence]");
+        log.info("inside commence()");
         HttpResponse httpResponse = new HttpResponse(
                 FORBIDDEN.value(), FORBIDDEN, FORBIDDEN.getReasonPhrase().toUpperCase(), FORBIDDEN_MESSAGE);
         response.setContentType(APPLICATION_JSON_VALUE);

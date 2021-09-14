@@ -1,17 +1,16 @@
 package com.himanshudabas.springboot.travelticketing.controller;
 
-import com.himanshudabas.springboot.travelticketing.exception.domain.*;
 import com.himanshudabas.springboot.travelticketing.domain.HttpResponse;
 import com.himanshudabas.springboot.travelticketing.domain.UserPrincipal;
 import com.himanshudabas.springboot.travelticketing.dto.EmployeeDto;
 import com.himanshudabas.springboot.travelticketing.dto.EmployeeLoginDto;
+import com.himanshudabas.springboot.travelticketing.exception.domain.*;
 import com.himanshudabas.springboot.travelticketing.exception.email.SendEmailFailException;
 import com.himanshudabas.springboot.travelticketing.model.Employee;
 import com.himanshudabas.springboot.travelticketing.service.EmployeeService;
 import com.himanshudabas.springboot.travelticketing.utility.JWTTokenProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +27,7 @@ import static com.himanshudabas.springboot.travelticketing.constant.EmailConstan
 import static com.himanshudabas.springboot.travelticketing.constant.SecurityConstant.JWT_TOKEN_HEADER;
 import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @RestController
 @RequestMapping(path = {"/employee"})
 public class EmployeeController extends ExceptionHandling {
@@ -36,7 +36,6 @@ public class EmployeeController extends ExceptionHandling {
     private final EmployeeService employeeService;
     private final JWTTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public EmployeeController(AuthenticationManager authenticationManager, EmployeeService employeeService, ModelMapper modelMapper, JWTTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
@@ -55,7 +54,7 @@ public class EmployeeController extends ExceptionHandling {
 
     @PostMapping("/login")
     public ResponseEntity<EmployeeDto> login(@Valid @RequestBody EmployeeLoginDto employeeLoginDto) {
-        LOGGER.info("[login]");
+        log.info("inside login()");
         authenticate(employeeLoginDto.getUsername(), employeeLoginDto.getPassword());
         Employee employee = employeeService.findEmployeeByUsername(employeeLoginDto.getUsername());
         UserPrincipal userPrincipal = new UserPrincipal(employee);
@@ -65,7 +64,7 @@ public class EmployeeController extends ExceptionHandling {
 
     @PostMapping("/register")
     public ResponseEntity<EmployeeDto> register(@Valid @RequestBody EmployeeDto employeeDto) throws EmployeeNotFoundException, UsernameExistException, EmailExistException, SendEmailFailException, UsernameEmailMismatchException {
-        LOGGER.info("[register]");
+        log.info("inside register()");
         Employee newEmployee = employeeService.register(toEntity(employeeDto));
         UserPrincipal userPrincipal = new UserPrincipal(newEmployee);
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
@@ -75,7 +74,7 @@ public class EmployeeController extends ExceptionHandling {
     @PreAuthorize("authentication.name == #username")
     @GetMapping("/{username}")
     public ResponseEntity<EmployeeDto> getEmployee(@PathVariable String username) {
-        LOGGER.info("[getUser]");
+        log.info("inside getUser()");
         Employee employee = employeeService.findEmployeeByUsername(username);
         return new ResponseEntity<>(toDto(employee), HttpStatus.OK);
     }
@@ -84,14 +83,14 @@ public class EmployeeController extends ExceptionHandling {
     @PreAuthorize("authentication.name == #username")
     @PostMapping("/update/{username}")
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto, @PathVariable String username) throws EmployeeNotFoundException {
-        LOGGER.info("[updateUser]");
+        log.info("inside updateUser()");
         Employee newEmployee = employeeService.updateEmployee(toEntity(employeeDto), username);
         return new ResponseEntity<>(toDto(newEmployee), OK);
     }
 
     @GetMapping("/resetPassword/{email}")
     public ResponseEntity<HttpResponse> resetPassword(@PathVariable String email) throws EmailNotFoundException, SendEmailFailException {
-        LOGGER.info("[resetPassword]");
+        log.info("inside resetPassword()");
         employeeService.resetPassword(email);
         return response(OK, EMAIL_SENT_TO + email);
     }
