@@ -2,8 +2,7 @@ package com.himanshudabas.springboot.travelticketing.filter;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.himanshudabas.springboot.travelticketing.utility.JWTTokenProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +22,12 @@ import static com.himanshudabas.springboot.travelticketing.constant.SecurityCons
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @Component
 @RestControllerAdvice
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JWTTokenProvider JWTTokenProvider;
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public JwtAuthorizationFilter(JWTTokenProvider JWTTokenProvider) {
         this.JWTTokenProvider = JWTTokenProvider;
@@ -36,7 +35,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        LOGGER.info("[doFilterInternal]");
+        log.info("inside doFilterInternal()");
         if (request.getMethod().equalsIgnoreCase(OPTIONS_HTTP_METHOD)) {
             response.setStatus(OK.value());
         } else {

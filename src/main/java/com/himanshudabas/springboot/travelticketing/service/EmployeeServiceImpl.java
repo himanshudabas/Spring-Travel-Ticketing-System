@@ -9,9 +9,9 @@ import com.himanshudabas.springboot.travelticketing.model.Employee;
 import com.himanshudabas.springboot.travelticketing.repository.EmployeeRepository;
 import com.himanshudabas.springboot.travelticketing.service.email.EmailService;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,15 +21,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 @Transactional
 @Qualifier("employeeDetailsService")
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService, UserDetailsService {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final EmployeeRepository employeeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final LoginAttemptService loginAttemptService;
@@ -49,21 +48,25 @@ public class EmployeeServiceImpl implements EmployeeService, UserDetailsService 
     @SneakyThrows
     @Override
     public UserDetails loadUserByUsername(String username) {
+        log.info("inside loadUserByUsername(), with username: {}", username);
         Employee employee = employeeRepository.findEmployeeByEmail(username);
+        UserPrincipal userPrincipal;
         if (employee == null) {
-            LOGGER.error(EmployeeImplConstant.NO_EMPLOYEE_FOUND_BY_USERNAME + username);
+            log.error(EmployeeImplConstant.NO_EMPLOYEE_FOUND_BY_USERNAME + username);
             throw new EmployeeNotFoundException(EmployeeImplConstant.NO_EMPLOYEE_FOUND_BY_USERNAME + username);
         } else {
             validateLoginAttempt(employee);
             employeeRepository.save(employee);
-            UserPrincipal userPrincipal = new UserPrincipal(employee);
-            LOGGER.info("[loadUserByUsername]: " + EmployeeImplConstant.FOUND_EMPLOYEE_BY_USERNAME + username);
-            return userPrincipal;
+            userPrincipal = new UserPrincipal(employee);
+            log.info("[loadUserByUsername]: " + EmployeeImplConstant.FOUND_EMPLOYEE_BY_USERNAME + username);
         }
+        log.info("finished loadUserByUsername()");
+        return userPrincipal;
     }
 
     @Override
     public Employee register(Employee employee) throws UsernameExistException, EmailExistException, SendEmailFailException, UsernameEmailMismatchException {
+        log.info("inside register()");
         validateNewUsernameAndEmail(employee.getUsername(), employee.getEmail());
         Role employeeType = Role.ROLE_USER;
         Employee newEmployee = new Employee();
@@ -83,8 +86,9 @@ public class EmployeeServiceImpl implements EmployeeService, UserDetailsService 
         newEmployee.setTitle(employee.getTitle());
         newEmployee.setAddress(employee.getAddress());
         employeeRepository.save(newEmployee);
-        LOGGER.info("New employee password: " + password);
+        log.info("New employee password: " + password);
         emailService.send(employee.getEmail(), password);
+        log.info("finished register()");
         return newEmployee;
     }
 
@@ -105,6 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService, UserDetailsService 
 
     @Override
     public Employee updateEmployee(Employee employee, String username) throws EmployeeNotFoundException {
+        log.info("inside updateEmployee(), with username: {}", username);
         Employee existingEmployee = validateExistingUser(username);
         if (isNotBlank(employee.getUsername())) {
             existingEmployee.setUsername(employee.getUsername());
@@ -128,16 +133,19 @@ public class EmployeeServiceImpl implements EmployeeService, UserDetailsService 
             existingEmployee.setAddress(employee.getAddress());
 
         employeeRepository.save(existingEmployee);
+        log.info("finished updateEmployee()");
         return existingEmployee;
     }
 
     @Override
     public void resetPassword(String email) throws EmailNotFoundException, SendEmailFailException {
+        log.info("inside resetPassword(), with email: {}", email);
         Employee employee = validateExistingEmail(email);
         String password = generatePassword();
         employee.setPassword(encodePassword(password));
         employeeRepository.save(employee);
         emailService.send(email, password);
+        log.info("finished resetPassword()");
     }
 
     private Employee validateExistingUser(String username) throws EmployeeNotFoundException {

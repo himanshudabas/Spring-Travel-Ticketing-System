@@ -4,8 +4,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.himanshudabas.springboot.travelticketing.domain.HttpResponse;
 import com.himanshudabas.springboot.travelticketing.exception.email.SendEmailFailException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -28,6 +27,7 @@ import java.util.Objects;
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
+@Slf4j
 public class ExceptionHandling implements ErrorController {
 
     public static final String ERROR_PATH = "/error";
@@ -48,7 +48,6 @@ public class ExceptionHandling implements ErrorController {
     private static final String DOCUMENT_PERMISSION_ERROR = "You do not have permission to access this document";
     private static final String NO_CHANGE_RESOLVE_INFO = "There were no changes in your request";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public static ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
         return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus, httpStatus.getReasonPhrase().toUpperCase(), message), httpStatus);
@@ -167,25 +166,25 @@ public class ExceptionHandling implements ErrorController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
-        LOGGER.error(exception.getMessage());
+        log.error("Exception occurred: ", exception);
         return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
     }
 
     @ExceptionHandler(NoResultException.class)
     public ResponseEntity<HttpResponse> notFoundException(NoResultException exception) {
-        LOGGER.error(exception.getMessage());
+        log.error("NoResultException occurred: ", exception);
         return createHttpResponse(NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(SendEmailFailException.class)
     public ResponseEntity<HttpResponse> sendEmailFailException(SendEmailFailException exception) {
-        LOGGER.error(exception.getMessage());
+        log.error("SendEmailFailException occurred: ", exception);
         return createHttpResponse(INTERNAL_SERVER_ERROR, exception.getMessage());
     }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<HttpResponse> iOException(IOException exception) {
-        LOGGER.error(exception.getMessage());
+        log.error("IOException occurred: ", exception);
         return createHttpResponse(INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
     }
 
